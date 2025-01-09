@@ -53,6 +53,7 @@ import hudson.model.Descriptor;
 import hudson.model.Label;
 import hudson.model.Node;
 import hudson.model.labels.LabelAtom;
+import hudson.util.ComboBoxModel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
@@ -98,20 +99,18 @@ public class InstanceConfiguration implements Describable<InstanceConfiguration>
     public static final String DEFAULT_RUN_AS_USER = "jenkins";
     public static final String METADATA_LINUX_STARTUP_SCRIPT_KEY = "startup-script";
     public static final String METADATA_WINDOWS_STARTUP_SCRIPT_KEY = "windows-startup-script-ps1";
-    public static final List<String> KNOWN_IMAGE_PROJECTS = Collections.unmodifiableList(new ArrayList<String>() {
-        {
-            add("centos-cloud");
-            add("coreos-cloud");
-            add("cos-cloud");
-            add("debian-cloud");
-            add("rhel-cloud");
-            add("suse-cloud");
-            add("suse-sap-cloud");
-            add("ubuntu-os-cloud");
-            add("windows-cloud");
-            add("windows-sql-cloud");
-        }
-    });
+    public static final List<String> KNOWN_IMAGE_PROJECTS = Arrays.asList(
+            "centos-cloud",
+            "coreos-cloud",
+            "cos-cloud",
+            "debian-cloud",
+            "rhel-cloud",
+            "suse-cloud",
+            "suse-sap-cloud",
+            "ubuntu-os-cloud",
+            "windows-cloud",
+            "windows-sql-cloud"
+    );
 
     private String description;
     private String namePrefix;
@@ -834,17 +833,12 @@ public class InstanceConfiguration implements Describable<InstanceConfiguration>
             }
         }
 
-        public ListBoxModel doFillBootDiskSourceImageProjectItems(
-                @AncestorInPath Jenkins context,
-                @QueryParameter("projectId") @RelativePath("..") final String projectId) {
+        public ComboBoxModel doFillBootDiskSourceImageProjectItems(@QueryParameter("projectId") @RelativePath("..") final String projectId) {
             checkPermissions(Jenkins.get(), Jenkins.ADMINISTER);
-            ListBoxModel items = new ListBoxModel();
-            items.add("");
-            items.add(projectId);
-            for (String v : KNOWN_IMAGE_PROJECTS) {
-                items.add(v);
-            }
-            return items;
+            ComboBoxModel items = new ComboBoxModel();
+          items.add(projectId);
+          items.addAll(KNOWN_IMAGE_PROJECTS);
+          return items;
         }
 
         public FormValidation doCheckBootDiskSourceImageProject(@QueryParameter String value) {
